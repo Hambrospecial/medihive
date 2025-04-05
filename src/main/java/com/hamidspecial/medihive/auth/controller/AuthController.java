@@ -9,7 +9,6 @@ import com.hamidspecial.medihive.pharmacy.dto.PharmacistRegisterRequest;
 import com.hamidspecial.medihive.util.Result;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -37,11 +36,6 @@ public class AuthController {
     @PostMapping("/register/pharmacist")
     public Result<PharmacistRegisterRequest> registerPharmacist(@Valid @RequestBody PharmacistRegisterRequest request) {
         return authService.registerPharmacist(request);
-    }
-
-    @GetMapping("/test")
-    public ResponseEntity<String> getTest() {
-        return ResponseEntity.ok("Testing authentication");
     }
 
 }

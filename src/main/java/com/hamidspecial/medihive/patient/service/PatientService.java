@@ -13,7 +13,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 
@@ -59,5 +61,19 @@ public class PatientService {
     }
 
 
+    public Result<Patient> getPatientByUsername(Authentication authentication) {
+        // Validation
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return Result.error("403", "Authentication required");
+        }
+        String username = authentication.getName();
+        if (StringUtils.isEmpty(username)) {
+            return Result.error("400", "Invalid user identity");
+        }
+        AuthUser authUser = authService.getUserByUsername(username);
+        Patient patient = patientRepository.findByAuthUserId(authUser.getId())
+                .orElseThrow(() -> new NotFoundException("404", "Patient not found"));
+        return Result.success(patient);
+    }
 
 }

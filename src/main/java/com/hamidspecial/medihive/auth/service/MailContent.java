@@ -2,8 +2,8 @@ package com.hamidspecial.medihive.auth.service;
 
 import com.hamidspecial.medihive.auth.jwt.JWTService;
 import com.hamidspecial.medihive.auth.model.AuthUser;
-import com.hamidspecial.medihive.emailservice.model.EmailDetails;
 import com.hamidspecial.medihive.exception.NotFoundException;
+import com.hamidspecial.medihive.notification.model.EmailNotificationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -20,14 +20,12 @@ public class MailContent {
     private final ApplicationParameterService applicationParameterService;
     private final JWTService jwtService;
 
-    public EmailDetails generateActivationMail(AuthUser user) {
+    public EmailNotificationRequest generateActivationMail(AuthUser user) {
         String activationLinkKey = jwtService.generateTokenLinkKey(user.getUsername());
         String hostIp = applicationParameterService.getApplicationParameterByKey(HOST_IP).getData().getValue();
 
         // Validate configurations
-        if (hostIp == null || hostIp.isBlank()) {
-            throw new NotFoundException("404", "Host IP configuration not found");
-        }
+        if (hostIp == null || hostIp.isBlank()) throw new NotFoundException("404", "Host IP configuration not found");
 
         String activateLink = hostIp + "/account/activate/" + activationLinkKey;
         String fullName = Stream.of(user.getFirstName(), user.getOtherName(), user.getLastName())
@@ -46,9 +44,9 @@ public class MailContent {
                 "<p>Best Regards,<br><strong>The MediHive Team</strong></p>" +
                 "</body></html>";
 
-        return EmailDetails.builder()
+        return new EmailNotificationRequest.Builder()
                 .subject("Activate Your MediHive Account")
-                .toAddress(user.getEmail())
+                .to(user.getEmail())
                 .contentType("text/html")
                 .body(emailBody)
                 .build();

@@ -5,8 +5,8 @@ import com.hamidspecial.medihive.auth.dto.ResetPasswordRequest;
 import com.hamidspecial.medihive.auth.jwt.JWTService;
 import com.hamidspecial.medihive.auth.model.AuthUser;
 import com.hamidspecial.medihive.auth.repository.UserRepository;
-import com.hamidspecial.medihive.emailservice.model.EmailDetails;
-import com.hamidspecial.medihive.emailservice.service.EmailService;
+import com.hamidspecial.medihive.notification.model.EmailNotificationRequest;
+import com.hamidspecial.medihive.notification.NotificationService;
 import com.hamidspecial.medihive.exception.BadRequestException;
 import com.hamidspecial.medihive.exception.InvalidTokenException;
 import com.hamidspecial.medihive.exception.NotFoundException;
@@ -26,7 +26,7 @@ public class PasswordService {
     private final JWTService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final RedisTemplate<String, String> redisTemplate;
-    private final EmailService emailService;
+    private final NotificationService notificationService;
     private final PasswordPolicyService passwordPolicyService;
     private final ApplicationParameterService applicationParameterService;
 
@@ -49,13 +49,14 @@ public class PasswordService {
         // Construct password reset link
         String resetLink = hostIp + "/password/reset/" + resetLinkKey;
         // Send email
-        EmailDetails emailDetails = EmailDetails.builder()
+        EmailNotificationRequest notificationRequest = new EmailNotificationRequest
+                .Builder()
                 .subject("Password Reset Link")
                 .contentType("text/plain")
                 .body("Click the following link to reset your password: " + resetLink)
-                .toAddress(email)
+                .to(email)
                 .build();
-        emailService.sendEmail(emailDetails);
+        notificationService.send(notificationRequest);
     }
 
 

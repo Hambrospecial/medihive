@@ -8,7 +8,8 @@ import com.hamidspecial.medihive.auth.jwt.JWTService;
 import com.hamidspecial.medihive.auth.model.AuthUser;
 import com.hamidspecial.medihive.auth.repository.UserRepository;
 import com.hamidspecial.medihive.auth.security.UserPrincipal;
-import com.hamidspecial.medihive.emailservice.service.EmailService;
+import com.hamidspecial.medihive.exception.NotFoundException;
+import com.hamidspecial.medihive.notification.service.email.EmailService;
 import com.hamidspecial.medihive.exception.DuplicateException;
 import com.hamidspecial.medihive.hospital.dto.DoctorRegisterRequest;
 import com.hamidspecial.medihive.hospital.model.Doctor;
@@ -70,7 +71,7 @@ public class AuthService {
 
             return Result.success(authResponse);
         } catch (AuthenticationException e) {
-            return Result.error("INVALID_CREDENTIALS", "Invalid username or password");
+            return Result.error("403", "Invalid username or password");
         }
     }
 
@@ -151,5 +152,10 @@ public class AuthService {
         user.setRole(role);
         userRepository.save(user);
         return user;
+    }
+
+    public AuthUser getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("404", "User does not exits"));
     }
 }

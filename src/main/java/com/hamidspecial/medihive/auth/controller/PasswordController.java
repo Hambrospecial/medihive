@@ -5,7 +5,6 @@ import com.hamidspecial.medihive.auth.dto.ResetPasswordRequest;
 import com.hamidspecial.medihive.auth.service.PasswordService;
 import com.hamidspecial.medihive.util.Result;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -22,15 +21,15 @@ public class PasswordController {
     }
 
     @PostMapping("/reset")
-    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+    public Result<String> resetPassword(@RequestBody ResetPasswordRequest request) {
         passwordService.resetPassword(request);
-        return ResponseEntity.ok("Password reset successful");
+        return Result.success("Password reset successful");
     }
 
     @PutMapping("/change")
-    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request) {
+    public Result<String> changePassword(@RequestBody ChangePasswordRequest request) {
         passwordService.changePassword(request);
-        return ResponseEntity.ok("Password changed successfully");
+        return Result.success("Password changed successfully");
     }
 }
 

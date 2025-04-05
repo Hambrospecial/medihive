@@ -7,12 +7,18 @@ import com.hamidspecial.medihive.patient.service.PatientService;
 import com.hamidspecial.medihive.util.Result;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1/patients")
 @RequiredArgsConstructor
+@Slf4j
 public class PatientController {
 
     private final PatientService patientService;
@@ -20,6 +26,18 @@ public class PatientController {
     @GetMapping("/{id}")
     public ResponseEntity<Result<Patient>> getPatientById(@PathVariable Long id) {
         return ResponseEntity.ok(patientService.getPatientById(id));
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<Result<Patient>> getPatientProfile() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            return ResponseEntity.ok(patientService.getPatientByUsername(authentication));
+        } catch (Exception e) {
+            log.error("Profile endpoint error", e);
+            return ResponseEntity.internalServerError()
+                    .body(Result.error("500", "Internal server error"));
+        }
     }
 
     @GetMapping
